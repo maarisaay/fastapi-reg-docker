@@ -4,18 +4,21 @@ import pandas as pd
 
 from sklearn.linear_model import LinearRegression
 
-def predict(x, model):
-    X = np.array(x).reshape(1, -1)
-    model = pickle.load(open(model, 'rb'))
-    y_pred = model.predict(X)
-    return y_pred
 
-def train(x, y , path_csv, path_pickle):
-    df = pd.read_csv(path_csv)
+def predict(x, path2pickle):
+    X = np.array([x]).reshape(-1, 1)
+    model = pickle.load(open(path2pickle, "rb"))
+    return model.predict(X)[0]
+
+
+def train(x, y, path2csv, path2pickle):
+    df = pd.read_csv(path2csv)
     df.loc[len(df)] = [x, y]
-    df.to_csv(path_csv, index=False)
+    df.to_csv(path2csv, index=False)
 
-    X, Y = df["x"].values.reshape(-1, 1), df["y"].values.reashape(-1, 1)
     model = LinearRegression()
-    model.fit(X, Y)
-    pickle.dump(model, open(path_pickle, 'wb'))
+    model.fit(df[["x"]].values, df["y"].values)
+
+    pickle.dump(model, open(path2pickle, 'wb'))
+    
+    return model
