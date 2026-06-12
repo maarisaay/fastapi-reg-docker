@@ -1,0 +1,16 @@
+services:
+  backend:
+    build: .
+    container_name: fastapi-backend
+    command: uvicorn app:app --host 0.0.0.0 --port 8008
+    ports:
+      - "8008:8008"
+
+  frontend:
+    build: .
+    container_name: streamlit-frontend
+    command: streamlit run app/streamlit_app.py --server.address=0.0.0.0
+    ports:
+      - "8501:8501"
+    depends_on:
+      - backend

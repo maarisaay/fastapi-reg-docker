@@ -22,3 +22,11 @@ def train(x, y, path2csv, path2pickle):
     pickle.dump(model, open(path2pickle, 'wb'))
     
     return model
+
+def get_model_params(path2pickle):
+    model = pickle.load(open(path2pickle, "rb"))
+
+    return {
+        "coef": float(model.coef_[0]),
+        "intercept": float(model.intercept_)
+    }

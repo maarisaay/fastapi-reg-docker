@@ -2,9 +2,10 @@ import uvicorn
 from fastapi import FastAPI, HTTPException, Form
 from typing import Annotated
 from pathlib import Path
+import pandas as pd
 
 from model.point import Point
-from libs.model import predict, train
+from libs.model import predict, train, get_model_params
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent
 MODEL_DIR = Path(BASE_DIR).joinpath("ml_models")
@@ -43,6 +44,27 @@ async def get_prediction(data: Point, model_name="our_model"):
     data.y = predict(data.x, model_file)
 
     return {"x": data.x, "y": data.y}
+
+@app.get("/model/data", tags=["model"])
+async def get_data(data_name="10_points"):
+    data_file = Path(DATA_DIR).joinpath(f"{data_name}.csv")
+
+    if not data_file.exists():
+        raise HTTPException(status_code=400, detail="Data file not found.")
+
+    df = pd.read_csv(data_file)
+
+    return df.to_dict(orient="records")
+
+@app.get("/model/params", tags=["model"])
+async def get_params(model_name="our_model"):
+
+    model_file = Path(MODEL_DIR).joinpath(f"{model_name}.pkl")
+
+    if not model_file.exists():
+        raise HTTPException(status_code=400, detail="Model not found.")
+
+    return get_model_params(model_file)
 
 
 if __name__ == '__main__':
